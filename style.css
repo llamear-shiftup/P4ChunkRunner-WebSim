@@ -50,3 +50,20 @@ textarea {
   flex: 1 1 auto;
   min-width: 100px;
 }
+
+.shard-0  { background: #f0f8ff; }
+.shard-1  { background: #faebd7; }
+.shard-2  { background: #ffe4e1; }
+.shard-3  { background: #e6e6fa; }
+.shard-4  { background: #fffacd; }
+.shard-5  { background: #e0ffff; }
+.shard-6  { background: #f5f5dc; }
+.shard-7  { background: #f5f5f5; }
+.shard-8  { background: #f0fff0; }
+.shard-9  { background: #f0ffff; }
+.shard-a  { background: #cce5ff; }
+.shard-b  { background: #ffeeba; }
+.shard-c  { background: #f8d7da; }
+.shard-d  { background: #d1ecf1; }
+.shard-e  { background: #d4edda; }
+.shard-f  { background: #fff3cd; }
