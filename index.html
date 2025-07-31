@@ -1,32 +1,39 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>P4ChunkRunner 시뮬레이터</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>P4ChunkRunner WebSim</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>P4ChunkRunner 시뮬레이터</h1>
-    <p>AnchorCDC와 Sharding의 Chunk 분할 과정을 비교할 수 있는 도구입니다.</p>
-  </header>
+  <div class="container">
+    <h1>P4ChunkRunner WebSim</h1>
 
-  <main>
-    <div id="control-panel">
-      <label>입력 키 목록:</label>
-      <input id="key-input" type="text" value="A,B,C,D,E,F,G,H,I,J" />
-      <button onclick="runSimulation()">시뮬레이션 실행</button>
+    <textarea id="inputKeys" placeholder="Enter one key per line..."></textarea>
+
+    <div class="options">
+      <label>Strategy:</label>
+      <select id="strategy">
+        <option value="hashcdc">HashCDC</option>
+        <option value="sharding">Sharding</option>
+      </select>
+
+      <label>Min Entries:</label>
+      <input type="number" id="minEntries" value="4">
+
+      <label>Mask Bits:</label>
+      <input type="number" id="maskBits" value="2">
+
+      <label>Max Entries:</label>
+      <input type="number" id="maxEntries" value="9999">
+
+      <button onclick="runChunking()">Run Chunking</button>
     </div>
 
-    <section id="output-panel">
-      <h2>AnchorCDC 결과</h2>
-      <pre id="anchorcdc-output">(아직 실행되지 않았습니다)</pre>
-
-      <h2>Sharding 결과</h2>
-      <pre id="sharding-output">(아직 실행되지 않았습니다)</pre>
-    </section>
-  </main>
+    <div id="resultArea">
+      <!-- chunks will appear here -->
+    </div>
+  </div>
 
   <script src="main.js"></script>
 </body>
