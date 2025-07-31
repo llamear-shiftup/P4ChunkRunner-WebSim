@@ -49,15 +49,16 @@
       return hash;
     }
 
-    function pad(n) {
-      return n.toString().padStart(3, '0');
-    }
-
     function generateRandomKeys() {
       const n = parseInt(document.getElementById("countInput").value);
+      const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
       const keys = [];
-      for (let i = 1; i <= n; i++) {
-        keys.push("Key" + pad(i));
+      for (let i = 0; i < n; i++) {
+        let suffix = '';
+        for (let j = 0; j < 4; j++) {
+          suffix += charset.charAt(Math.floor(Math.random() * charset.length));
+        }
+        keys.push("Key" + suffix);
       }
       document.getElementById("keysInput").value = keys.join("\n");
     }
@@ -66,7 +67,6 @@
       const keys = document.getElementById("keysInput").value.split(/\r?\n/).filter(k => k.trim() !== "");
       const maskBits = 4;
       const mask = (1n << BigInt(maskBits)) - 1n;
-      const anchors = [];
       const chunks = [];
       let chunk = [];
       for (const key of keys) {
@@ -96,7 +96,7 @@
       const digit = 1;
       const shards = {};
       for (const key of keys) {
-        const hashHex = fnv1a64(key).toString(16).padStart(16, '0');
+        const hashHex = fnv1a64("LocalizedStringsSystem" + key).toString(16).padStart(16, '0');
         const prefix = hashHex.substring(0, digit);
         if (!shards[prefix]) shards[prefix] = [];
         shards[prefix].push(key);
