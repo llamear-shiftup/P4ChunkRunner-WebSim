@@ -55,18 +55,23 @@ function computeHash(className, key) {
   return hash;
 }
 
-function renderChunks(chunks, labels = null) {
+function renderChunks(chunks, labels = []) {
   const result = document.getElementById("resultArea");
   result.innerHTML = "";
 
   chunks.forEach((chunk, idx) => {
+    const label = labels[idx] || `Chunk ${idx}`;
+    const shardClass = label.match(/Shard (\w+)/)?.[1]?.toLowerCase() || "x";
+
     const div = document.createElement("div");
-    div.className = "chunk";
-    const label = labels ? labels[idx] : `Chunk ${idx + 1}`;
-    div.innerHTML = `<strong>${label}</strong><br>${chunk.join("<br>")}`;
+    div.innerHTML = `<strong>${label}:</strong> `;
+    chunk.forEach(key => {
+      div.innerHTML += `<span class="chunk shard shard-${shardClass}">${key}</span>`;
+    });
     result.appendChild(div);
   });
 }
+
 
 function runChunking() {
   const raw = document.getElementById("inputKeys").value;
