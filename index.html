@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>P4ChunkRunner 시뮬레이터</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>P4ChunkRunner 시뮬레이터</h1>
+    <p>AnchorCDC와 Sharding의 Chunk 분할 과정을 비교할 수 있는 도구입니다.</p>
+  </header>
+
+  <main>
+    <div id="control-panel">
+      <label>입력 키 목록:</label>
+      <input id="key-input" type="text" value="A,B,C,D,E,F,G,H,I,J" />
+      <button onclick="runSimulation()">시뮬레이션 실행</button>
+    </div>
+
+    <section id="output-panel">
+      <h2>AnchorCDC 결과</h2>
+      <pre id="anchorcdc-output">(아직 실행되지 않았습니다)</pre>
+
+      <h2>Sharding 결과</h2>
+      <pre id="sharding-output">(아직 실행되지 않았습니다)</pre>
+    </section>
+  </main>
+
+  <script src="main.js"></script>
+</body>
+</html>
