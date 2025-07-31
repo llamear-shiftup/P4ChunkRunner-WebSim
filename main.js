@@ -1,5 +1,3 @@
-// main.js (수정된 Anchor 기반 HashCDC 버전 포함 전체 코드)
-
 function runChunking() {
   const raw = document.getElementById("inputKeys").value;
   const keys = raw.split("\n").map(k => k.trim()).filter(k => k.length > 0);
@@ -8,12 +6,13 @@ function runChunking() {
   const minEntries = parseInt(document.getElementById("minEntries").value);
   const maskBits = parseInt(document.getElementById("maskBits").value);
   const maxEntries = parseInt(document.getElementById("maxEntries").value);
+  const digit = parseInt(document.getElementById("digit").value);
 
   let chunks = [];
   if (strategy === "hashcdc") {
     chunks = runAnchorCDC(keys, minEntries, maskBits, maxEntries);
   } else {
-    chunks = runSharding(keys, 1); // digit=1
+    chunks = runSharding(keys, digit);
   }
 
   renderChunks(chunks);
@@ -25,7 +24,9 @@ function runAnchorCDC(keys, minEntries, maskBits, maxEntries, fallbackSplitFacto
 
   let current = [];
   let sinceAnchor = 0;
-  const fallbackThreshold = fallbackSplitFactor > 0 ? Math.max(minEntries * fallbackSplitFactor, maxEntries) : Infinity;
+  const fallbackThreshold = fallbackSplitFactor > 0
+    ? Math.max(minEntries * fallbackSplitFactor, maxEntries)
+    : Infinity;
 
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
