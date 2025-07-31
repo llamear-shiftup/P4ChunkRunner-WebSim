@@ -1,0 +1,31 @@
+body {
+  font-family: sans-serif;
+  padding: 2rem;
+  max-width: 800px;
+  margin: auto;
+  background: #f8f8f8;
+}
+
+h1 {
+  color: #333;
+}
+
+#control-panel {
+  margin: 1rem 0;
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+input {
+  width: 80%;
+  padding: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+pre {
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 6px;
+  white-space: pre-wrap;
+}
