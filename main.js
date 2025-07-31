@@ -1,18 +1,18 @@
-function runChunking() {
+// main.js (AnchorCDC + Sharding 시뮬레이터, 출력 통일됨)
+
+function runChunking(strategy) {
   const raw = document.getElementById("inputKeys").value;
   const keys = raw.split("\n").map(k => k.trim()).filter(k => k.length > 0);
 
-  const strategy = document.getElementById("strategy").value;
   const minEntries = parseInt(document.getElementById("minEntries").value);
   const maskBits = parseInt(document.getElementById("maskBits").value);
   const maxEntries = parseInt(document.getElementById("maxEntries").value);
-  const digit = parseInt(document.getElementById("digit").value);
 
   let chunks = [];
   if (strategy === "hashcdc") {
     chunks = runAnchorCDC(keys, minEntries, maskBits, maxEntries);
   } else {
-    chunks = runSharding(keys, digit);
+    chunks = runSharding(keys, 1); // digit=1 고정
   }
 
   renderChunks(chunks);
@@ -24,9 +24,7 @@ function runAnchorCDC(keys, minEntries, maskBits, maxEntries, fallbackSplitFacto
 
   let current = [];
   let sinceAnchor = 0;
-  const fallbackThreshold = fallbackSplitFactor > 0
-    ? Math.max(minEntries * fallbackSplitFactor, maxEntries)
-    : Infinity;
+  const fallbackThreshold = fallbackSplitFactor > 0 ? Math.max(minEntries * fallbackSplitFactor, maxEntries) : Infinity;
 
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
@@ -50,7 +48,7 @@ function runAnchorCDC(keys, minEntries, maskBits, maxEntries, fallbackSplitFacto
   return chunks;
 }
 
-function runSharding(keys, digit) {
+function runSharding(keys, digit = 1) {
   const buckets = {};
   for (const key of keys) {
     const h = computeHash("LocalizedStringsSystem", key);
@@ -59,7 +57,7 @@ function runSharding(keys, digit) {
     if (!buckets[prefix]) buckets[prefix] = [];
     buckets[prefix].push(key);
   }
-  return Object.values(buckets);
+  return Object.values(buckets); // prefix 무시하고 chunk 단위로
 }
 
 function computeHash(className, key) {
@@ -81,7 +79,18 @@ function renderChunks(chunks) {
   chunks.forEach((chunk, idx) => {
     const div = document.createElement("div");
     div.className = "chunk";
-    div.innerHTML = `<strong>Chunk ${idx + 1}</strong><br>${chunk.join("<br>")}`;
+    div.innerHTML = `<strong>Chunk ${idx} (size: ${chunk.length})</strong><br>${chunk.join("<br>")}`;
     result.appendChild(div);
   });
+}
+
+function generateRandomKeys() {
+  const count = parseInt(document.getElementById("keyCount").value);
+  const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const keys = [];
+  for (let i = 1; i <= count; i++) {
+    const suffix = Array.from({ length: 4 }, () => charset[Math.floor(Math.random() * charset.length)]).join("");
+    keys.push(`Key${suffix}`);
+  }
+  document.getElementById("inputKeys").value = keys.join("\n");
 }
