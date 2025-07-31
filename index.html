@@ -1,40 +1,112 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>P4ChunkRunner WebSim</title>
+  <title>Chunking 시뮬레이터</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    .key-inputs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .key-inputs input { width: 100px; padding: 0.25rem; }
+    .chunk-box { padding: 0.5rem 1rem; border: 2px solid #ccc; border-radius: 8px; margin: 0.5rem; display: inline-block; }
+    .chunk-title { font-weight: bold; margin-bottom: 0.5rem; }
+    .hash-box { font-family: monospace; background: #111; color: #0f0; padding: 1rem; white-space: pre-wrap; border-radius: 8px; }
+    .anchor { color: #00f; font-weight: bold; }
+    .button-row { margin-top: 1rem; display: flex; gap: 1rem; }
+    .chunks-container { display: flex; flex-wrap: wrap; gap: 1rem; }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>P4ChunkRunner WebSim</h1>
+  <h1>AnchorCDC 시뮬레이터</h1>
 
-    <textarea id="inputKeys" placeholder="Enter one key per line..."></textarea>
-
-    <div class="options">
-      <label>Strategy:</label>
-      <select id="strategy">
-        <option value="hashcdc">HashCDC</option>
-        <option value="sharding">Sharding</option>
-      </select>
-
-      <label>Min Entries:</label>
-      <input type="number" id="minEntries" value="4">
-
-      <label>Mask Bits:</label>
-      <input type="number" id="maskBits" value="2">
-
-      <label>Max Entries:</label>
-      <input type="number" id="maxEntries" value="9999">
-
-      <button onclick="runChunking()">Run Chunking</button>
-    </div>
-
-    <div id="resultArea">
-      <!-- chunks will appear here -->
-    </div>
+  <p>입력 Keys:</p>
+  <div class="key-inputs" id="keyInputs">
+    <input type="text" value="Key001">
+    <input type="text" value="Key002">
+    <input type="text" value="Key003">
+    <input type="text" value="Key004">
+    <input type="text" value="Key005">
+    <input type="text" value="Key006">
+    <input type="text" value="Key007">
+    <input type="text" value="Key008">
+    <input type="text" value="Key009">
   </div>
 
-  <script src="main.js"></script>
+  <div class="button-row">
+    <button onclick="runChunking()">Chunking 실행</button>
+    <button onclick="addKey()">+ Key 추가</button>
+  </div>
+
+  <h3>Hash 값 계산 (maskBits = 4 → mask = 0xF):</h3>
+  <div class="hash-box" id="hashOutput"></div>
+
+  <h3>Anchor 기반 Chunking 결과:</h3>
+  <div class="chunks-container" id="chunkOutput"></div>
+
+  <script>
+    function fnv1a64(str) {
+      const FNV_OFFSET = BigInt('0xcbf29ce484222325');
+      const FNV_PRIME  = BigInt('0x100000001b3');
+      let hash = FNV_OFFSET;
+      for (let i = 0; i < str.length; i++) {
+        hash ^= BigInt(str.charCodeAt(i));
+        hash = (hash * FNV_PRIME) & BigInt('0xFFFFFFFFFFFFFFFF');
+      }
+      return hash;
+    }
+
+    function runChunking() {
+      const keys = Array.from(document.querySelectorAll('#keyInputs input'))
+        .map(i => i.value.trim()).filter(s => s);
+
+      const mask = BigInt(0xF); // maskBits = 4
+      let output = '', anchors = [];
+      for (const key of keys) {
+        const h = fnv1a64(key);
+        const isAnchor = (h & mask) === BigInt(0);
+        output += `${key.padEnd(8)} → ${h.toString(16).padStart(16, '0')}` + (isAnchor ? '  ✅ anchor\n' : '\n');
+        if (isAnchor) anchors.push(key);
+      }
+      document.getElementById('hashOutput').textContent = output;
+
+      // 청크 나누기 (anchor 기준)
+      const chunks = [];
+      let currentChunk = [];
+      for (const key of keys) {
+        currentChunk.push(key);
+        if (anchors.includes(key)) {
+          chunks.push(currentChunk);
+          currentChunk = [];
+        }
+      }
+      if (currentChunk.length > 0) chunks.push(currentChunk);
+
+      const outDiv = document.getElementById('chunkOutput');
+      outDiv.innerHTML = '';
+      chunks.forEach((chunk, i) => {
+        const box = document.createElement('div');
+        box.className = 'chunk-box';
+        const title = document.createElement('div');
+        title.className = 'chunk-title';
+        title.textContent = `Chunk ${i + 1}`;
+        box.appendChild(title);
+        chunk.forEach(k => {
+          const line = document.createElement('div');
+          line.textContent = k;
+          if (anchors.includes(k)) line.classList.add('anchor');
+          box.appendChild(line);
+        });
+        outDiv.appendChild(box);
+      });
+    }
+
+    function addKey() {
+      const container = document.getElementById('keyInputs');
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = 'KeyXYZ';
+      container.appendChild(input);
+    }
+  </script>
 </body>
 </html>
