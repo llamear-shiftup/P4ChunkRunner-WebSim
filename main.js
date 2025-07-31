@@ -1,22 +1,4 @@
-// main.js (AnchorCDC + Sharding 시뮬레이터, 출력 통일됨)
-
-function runChunking(strategy) {
-  const raw = document.getElementById("inputKeys").value;
-  const keys = raw.split("\n").map(k => k.trim()).filter(k => k.length > 0);
-
-  const minEntries = parseInt(document.getElementById("minEntries").value);
-  const maskBits = parseInt(document.getElementById("maskBits").value);
-  const maxEntries = parseInt(document.getElementById("maxEntries").value);
-
-  let chunks = [];
-  if (strategy === "hashcdc") {
-    chunks = runAnchorCDC(keys, minEntries, maskBits, maxEntries);
-  } else {
-    chunks = runSharding(keys, 1); // digit=1 고정
-  }
-
-  renderChunks(chunks);
-}
+// main.js (Sharding + AnchorCDC 모두 정리된 버전)
 
 function runAnchorCDC(keys, minEntries, maskBits, maxEntries, fallbackSplitFactor = 3) {
   const chunks = [];
@@ -57,7 +39,8 @@ function runSharding(keys, digit = 1) {
     if (!buckets[prefix]) buckets[prefix] = [];
     buckets[prefix].push(key);
   }
-  return Object.values(buckets); // prefix 무시하고 chunk 단위로
+  const labels = Object.keys(buckets).map(p => `Shard ${p}`);
+  renderChunks(Object.values(buckets), labels);
 }
 
 function computeHash(className, key) {
@@ -72,22 +55,40 @@ function computeHash(className, key) {
   return hash;
 }
 
-function renderChunks(chunks) {
+function renderChunks(chunks, labels = null) {
   const result = document.getElementById("resultArea");
   result.innerHTML = "";
 
   chunks.forEach((chunk, idx) => {
     const div = document.createElement("div");
     div.className = "chunk";
-    div.innerHTML = `<strong>Chunk ${idx} (size: ${chunk.length})</strong><br>${chunk.join("<br>")}`;
+    const label = labels ? labels[idx] : `Chunk ${idx + 1}`;
+    div.innerHTML = `<strong>${label}</strong><br>${chunk.join("<br>")}`;
     result.appendChild(div);
   });
 }
 
-function generateRandomKeys() {
-  const count = parseInt(document.getElementById("keyCount").value);
-  const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+function runChunking() {
+  const raw = document.getElementById("inputKeys").value;
+  const keys = raw.split("\n").map(k => k.trim()).filter(k => k.length > 0);
+
+  const strategy = document.getElementById("strategy").value;
+  const minEntries = parseInt(document.getElementById("minEntries").value);
+  const maskBits = parseInt(document.getElementById("maskBits").value);
+  const maxEntries = parseInt(document.getElementById("maxEntries").value);
+
+  let chunks = [];
+  if (strategy === "hashcdc") {
+    chunks = runAnchorCDC(keys, minEntries, maskBits, maxEntries);
+    renderChunks(chunks); // label: Chunk 1, Chunk 2, ...
+  } else {
+    runSharding(keys, 1); // label: Shard a, Shard b, ...
+  }
+}
+
+function generateRandomKeys(count) {
   const keys = [];
+  const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let i = 1; i <= count; i++) {
     const suffix = Array.from({ length: 4 }, () => charset[Math.floor(Math.random() * charset.length)]).join("");
     keys.push(`Key${suffix}`);
