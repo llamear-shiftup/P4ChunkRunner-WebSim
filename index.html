@@ -85,6 +85,7 @@
       <label>엔트리 개수:</label>
       <input id="countInput" type="number" value="50" min="1" />
       <button onclick="generateRandomKeys()">랜덤 키 생성</button>
+      <button onclick="appendRandomKeys()">랜덤 키 추가</button>
       <button onclick="runAnchorCDC()">AnchorCDC 실행</button>
       <button onclick="runSharding()">Sharding 실행</button>
     </div>
@@ -127,6 +128,18 @@
       }
       document.getElementById("keysInput").value = keys.join("\n");
     }
+
+    function appendRandomKeys() {
+      const n = parseInt(document.getElementById("countInput").value);
+      const textarea = document.getElementById("keysInput");
+      const existing = textarea.value.trim().split(/\r?\n/).filter(k => k.trim() !== "");
+      const newKeys = [];
+      for (let i = 0; i < n; i++) {
+        newKeys.push(randomKey());
+      }
+      textarea.value = [...existing, ...newKeys].join("\n");
+    }
+
 
     function runAnchorCDC() {
       const keys = document.getElementById("keysInput").value.split(/\r?\n/).filter(k => k.trim() !== "");
